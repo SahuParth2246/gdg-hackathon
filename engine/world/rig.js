@@ -53,7 +53,7 @@ export function createRig(camera, world) {
       return;
     }
     yawGoal -= dx * 0.0052;
-    pitchGoal = THREE.MathUtils.clamp(pitchGoal + dy * 0.0042, 0.06, 1.38);
+    pitchGoal = THREE.MathUtils.clamp(pitchGoal + dy * 0.0042, -0.5, 1.38);
   }
   // Scrolling out of first person steps back behind the player.
   function zoom(f) {
@@ -166,6 +166,8 @@ export function createRig(camera, world) {
       cutaway(player, followPos);
       collide(dt, followPos);
       if (player.swimming || gazeT > 0) keepOffWater(followPos);
+      // Don't let the camera sink below ground when pitched below horizontal.
+      if (followPos.y < 0.3) followPos.y = 0.3;
       camera.position.copy(followPos);
       camera.lookAt(focus);
       lookUp(dt, player);

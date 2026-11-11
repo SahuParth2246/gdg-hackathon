@@ -16,7 +16,7 @@ import * as THREE from 'three';
 import * as L from '@world/layout.js';
 import { SWIM_PIVOT } from './avatar.js';
 
-const WALK = 3.6, RUN = 6.2, FLY = 8.5, FLY_FAST = 16, CLIMB = 6, JUMP = 6.4, GRAVITY = 19, RADIUS = 0.3, SEA = -0.9;
+const WALK = 3.6, RUN = 6.2, SPRINT = 9.5, FLY = 8.5, FLY_FAST = 16, CLIMB = 6, JUMP = 6.4, GRAVITY = 19, RADIUS = 0.3, SEA = -0.9;
 // What the world has: stations, a spawn point, and optionally a house (left
 // and entered by its front door when flying) and a pool to swim in.
 const STATIONS = L.STATIONS || [], SPAWN = L.SPAWN || { x: 0, z: 0, heading: Math.PI }, ISLAND = L.ISLAND;
@@ -584,7 +584,7 @@ export function createPlayer({ avatar, nav, grid = null, ground = null, onArrive
     }
 
     const length = Math.hypot(dx, dz), mag = Math.min(1, length);
-    speed += (mag * (input.run || (rush && path) ? RUN : WALK) - speed) * (1 - Math.exp(-dt * (airborne ? 4 : 10)));
+    speed += (mag * (input.sprint ? SPRINT : input.run || (rush && path) ? RUN : WALK) - speed) * (1 - Math.exp(-dt * (airborne ? 4 : 10)));
     if (mag > 0.01) {
       const step = path?.length ? Math.min(speed * dt, Math.hypot(path[0].x - pos.x, path[0].z - pos.z)) : speed * dt;
       if (through) { pos.x += dx / length * step; pos.z += dz / length * step; }
@@ -693,7 +693,7 @@ export function createPlayer({ avatar, nav, grid = null, ground = null, onArrive
     }
     avatar.root.position.set(pos.x, y, pos.z); avatar.root.rotation.y = heading;
     const flying = mode === 'fly', horizontal = flying ? Math.hypot(velocity.x, velocity.z) : speed;
-    avatar.update(dt, { speed: flying || mode === 'zip' ? 0 : speed / RUN * (input.run ? 1 : 1.6), run: !flying && input.run && speed > WALK, fly: flying ? Math.min(1, horizontal / FLY) : -1, air: mode === 'air', zip: mode === 'zip' });
+    avatar.update(dt, { speed: flying || mode === 'zip' ? 0 : speed / RUN * (input.run || input.sprint ? 1 : 1.6), run: !flying && (input.run || input.sprint) && speed > WALK, fly: flying ? Math.min(1, horizontal / FLY) : -1, air: mode === 'air', zip: mode === 'zip' });
     const below = floorBelow(pos.x, pos.z, y + 0.01), lift = y - below.y;
     avatar.blob.position.set(pos.x, below.y + 0.015, pos.z);
     if (avatar.blob.material) { avatar.blob.visible = below.y > SEA && lift < 8; avatar.blob.material.opacity = 0.32 * Math.max(0, 1 - lift / 8); }
@@ -719,6 +719,8 @@ export function createPlayer({ avatar, nav, grid = null, ground = null, onArrive
     get travelling() { return !!path?.length || !!pilot || !!zip; }, get path() { return path; },
     get zipping() { return !!zip; },
     get flying() { return mode === 'fly'; }, get island() { return island; }, get mode() { return mode; },
+    // True while the player is sprinting (Ctrl+W on the ground, faster than run speed).
+    get sprinting() { return mode === 'ground' && speed > RUN * 0.9; },
     // Flying themselves to a tapped place, rather than steered by hand.
     get piloting() { return !!pilot; },
     get swimming() { return mode === 'swim'; },

@@ -124,7 +124,10 @@ export function createInput(canvas, handlers) {
     move.x = x; move.z = z;
     move.run = held('ShiftLeft', 'shift') || keys.has('ShiftRight');
     move.up = held('Space', ' ') || !!pad?.up;
-    move.down = held('ControlLeft', 'control') || keys.has('ControlRight') || !!pad?.down;
+    const ctrl = held('ControlLeft', 'control') || keys.has('ControlRight');
+    // Ctrl + W sprints on the ground; Ctrl alone descends in flight mode.
+    move.sprint = ctrl && move.z < 0;
+    move.down = ctrl && !move.sprint || !!pad?.down;
     return move;
   }
 

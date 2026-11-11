@@ -12,7 +12,7 @@ export function showHint() {
   if (!hint || store.get('labyrinth-hint') || document.body.classList.contains('plain')) return;
   hint.querySelector('span').innerHTML = touch
     ? 'Tap a building or its name to open it. Drag to look around.'
-    : 'Click a building or its name to open it. Drag to look around, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk.';
+    : 'Click a building or its name to open it. Drag to look around, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk. Hold <kbd>Ctrl</kbd>+<kbd>W</kbd> to sprint.';
   hint.hidden = false;
 }
 

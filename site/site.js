@@ -6,6 +6,7 @@ import { isHeroOn, showHero, hideHero, drawLogo, initHero, enableHeroExplore, up
 import { initHint, showHint } from './hint.js';
 import { initNav, syncModeLinks } from './nav.js';
 import { initTags } from './tags.js';
+import { initSprintIndicator } from './sprint-indicator.js';
 
 const $ = s => document.querySelector(s);
 const body = document.body;
@@ -82,6 +83,7 @@ function ready(h) {
   enableHeroExplore();
 
   navInstance = initNav(h);
+  initSprintIndicator();
 
   const tagsInstance = initTags({
     h,
